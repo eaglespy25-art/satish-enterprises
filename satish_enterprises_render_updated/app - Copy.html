@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Satish Enterprises — Unified App</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font:14px Arial;background:#f5f6fa;color:#20232a}
+header{height:64px;background:#171923;color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 22px;position:sticky;top:0;z-index:20}.logo{font-size:21px;font-weight:800}.logo b{color:#f5a623}
+nav{display:flex;gap:6px;flex-wrap:wrap}.nav{background:#2b2e3d;color:#fff;border:0;border-radius:7px;padding:9px 11px;cursor:pointer}.nav:hover{background:#3b3f50}
+main{max-width:1250px;margin:auto;padding:24px}.page{display:none}.page.active{display:block}.hero,.box,.card{background:#fff;border:1px solid #e4e6eb;border-radius:13px;padding:18px;margin-bottom:17px}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}.two{grid-template-columns:1.2fr .8fr}.pic{height:160px;display:flex;align-items:center;justify-content:center;font-size:60px;background:#f1e9df;border-radius:10px}.price{font-size:20px;font-weight:800;margin:7px 0}.muted{color:#737887}.btn{padding:10px 13px;border:0;border-radius:8px;background:#171923;color:#fff;font-weight:700;cursor:pointer}.btn.light{background:#fff;color:#20232a;border:1px solid #ddd}.btn:disabled{opacity:.5;cursor:not-allowed}input,select,textarea{width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;margin:5px 0}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.item{display:flex;justify-content:space-between;gap:10px;padding:12px 0;border-bottom:1px solid #eee}.badge{padding:5px 8px;border-radius:18px;background:#eef0f4;font-size:11px}.green{background:#e2f7ea;color:#17733e}.yellow{background:#fff2cc;color:#8a6500}.red{background:#ffe1e1;color:#a01f1f}.modal{display:none;position:fixed;inset:0;background:#0008;align-items:center;justify-content:center;z-index:50}.modal.show{display:flex}.modal>div{background:#fff;border-radius:13px;padding:22px;width:430px;max-width:92vw}.small{font-size:12px}.notice{background:#eef6ff;padding:11px;border-radius:8px;margin:10px 0}
+@media(max-width:800px){.grid,.row{grid-template-columns:1fr}nav{display:none}}
+.adminnav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}.adminnav button{padding:9px 12px;border:1px solid #ddd;border-radius:8px;background:#fff;cursor:pointer}.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}.kpi{background:#fff;border:1px solid #e4e6eb;border-radius:12px;padding:15px}.kpi b{font-size:24px;display:block;margin-top:5px}.workspace{display:none}.workspace.active{display:block}@media(max-width:800px){.kpis{grid-template-columns:1fr 1fr}} </style>
+</head>
+<body>
+<header><div class="logo">SATISH <b>ENTERPRISES</b></div><nav>
+<button class="nav" onclick="page('home')">Shop</button><button class="nav" onclick="page('cart')">Cart <span id="cartCount">0</span></button>
+<button class="nav" onclick="page('orders')">Orders</button><button class="nav" onclick="page('returns')">Returns</button><button class="nav" onclick="page('analytics')">📊 Analytics</button><button class="nav" onclick="page('account')">👤 Account</button><button class="nav" onclick="page('tracking')">🚚 Track</button><button class="nav" onclick="page('notifications')">🔔 <span id="unread">0</span></button><button class="nav" onclick="page('account')">Account</button>
+<button class="nav" onclick="page('ordersAdminPage')">Orders</button><button class="nav" onclick="page('shippingAdminPage')">Shipping</button><button class="nav" onclick="page('inventoryPage')">Inventory</button><button class="nav" id="adminNav" style="display:none" onclick="page('admin')">Admin</button><button class="nav" onclick="openAuth()">Login</button>
+</nav></header>
+<main>
+<section id="home" class="page active"><div class="hero"><h1>Satish Enterprises</h1><p class="muted">Online shopping • Secure online payment • COD disabled</p></div><div class="grid" id="products"></div></section>
+<section id="cart" class="page"><div class="box"><h2>Cart</h2><div id="cartItems"></div><button class="btn" onclick="page('checkout')">Checkout</button></div></section>
+<section id="checkout" class="page"><div class="grid two"><div><div class="box"><h2>Delivery Address</h2><div id="addresses"></div><h3>Add address</h3><div class="row"><input id="aname" placeholder="Name"><input id="aphone" placeholder="Phone"></div><input id="aaddress" placeholder="Address"><div class="row"><input id="acity" placeholder="City"><input id="apin" placeholder="6-digit pincode" maxlength="6"></div><button class="btn" onclick="addAddress()">Save Address</button></div><div class="box"><h2>Payment</h2><div class="notice">Online payment only. Cash on Delivery is disabled.</div><button class="btn" onclick="pay()">Pay securely</button></div></div><div class="box"><h2>Summary</h2><div id="summary"></div></div></div></section>
+<section id="account" class="page"><div class="hero"><h1>My Account</h1><p class="muted">Profile, orders, addresses and security</p></div>
+<div class="kpis" id="accountKpis"></div>
+<div class="box"><h2>Profile</h2><div class="row"><input id="accountName" placeholder="Name"><input id="accountPhone" placeholder="Phone"></div><button class="btn" onclick="saveProfile()">Save Profile</button></div>
+<div class="box"><h2>My Orders</h2><div id="accountOrders"></div></div>
+<div class="box"><h2>Change Password</h2><input id="currentPassword" type="password" placeholder="Current password"><input id="newPassword" type="password" placeholder="New password (8+ characters)"><button class="btn" onclick="changePassword()">Change Password</button></div>
+</section>
+<section id="tracking" class="page"><div class="box"><h2>Track My Shipment</h2><input id="trackAwb" placeholder="Enter AWB / tracking number"><button class="btn" onclick="trackShipment()">Track</button><div id="trackResult"></div></div></section>
+<section id="notifications" class="page"><div class="box"><h2>Notifications</h2><button class="btn light" onclick="readAll()">Mark all read</button><div id="notificationList"></div></div><div class="box"><h3>Notification Preferences</h3><div id="prefs"></div></div></section>
+<section id="returns" class="page"><div class="box"><h2>My Returns & Refunds</h2><div id="returnList"></div></div></section>
+<section id="orders" class="page"><div class="box"><h2>My Orders</h2><div id="ordersList"></div></div></section>
+<section id="account" class="page"><div class="box"><h2>My Account</h2><div id="accountInfo"></div></div></section>
+<section id="shippingAdminPage" class="page"><div class="hero"><h1>Shipping & Delivery</h1><p class="muted">Courier, AWB, tracking and delivery status</p></div><div class="box"><button class="btn" onclick="loadShipments()">Refresh Shipments</button><div id="shipmentTable"></div></div></section>
+<section id="ordersAdminPage" class="page"><div class="hero"><h1>Order Management</h1><p class="muted">Search, update status and inspect order history</p></div><div class="box"><div class="row"><input id="orderSearch" placeholder="Order number, customer or email"><select id="orderStatus"><option value="">All statuses</option><option>payment_pending</option><option>confirmed</option><option>processing</option><option>shipped</option><option>delivered</option><option>cancelled</option><option>return_requested</option><option>returned</option><option>refunded</option></select></div><button class="btn" onclick="loadAdminOrders()">Search Orders</button><div id="adminOrderTable"></div></div><div class="box" id="orderDetail" style="display:none"></div></section>
+<section id="inventoryPage" class="page"><div class="hero"><h1>Inventory Management</h1><p class="muted">Products, variants, stock and low-stock alerts</p></div><div class="box"><button class="btn" onclick="loadInventory()">Refresh Inventory</button> <button class="btn light" onclick="addProduct()">Add Product</button><div id="inventoryTable"></div></div></section>
+<section id="analytics" class="page"><div class="hero"><h1>Analytics Dashboard</h1><p class="muted">Sales, orders, products, customers and refunds</p></div><div class="box"><select id="analyticsDays" onchange="loadAnalytics()"><option value="7">7 days</option><option value="30" selected>30 days</option><option value="90">90 days</option><option value="365">365 days</option></select></div><div class="kpis" id="analyticsKpis"></div><div class="box"><h2>Daily Performance</h2><div id="dailyAnalytics"></div></div><div class="box"><h2>Top Products</h2><div id="productAnalytics"></div></div><div class="box"><h2>Customers</h2><div id="customerAnalytics"></div></div></section>
+<section id="admin" class="page"><div class="hero"><h1>Admin Control Center</h1><p class="muted">Orders, payments, inventory and refunds</p></div>
+<div class="adminnav" id="adminMenu"></div>
+<div class="kpis" id="kpis"></div>
+<div id="workspace" class="box"><h2 id="workspaceTitle">Dashboard</h2><div id="workspaceBody"></div></div><div class="grid" id="adminCards"></div><div class="box"><h2>Recent Orders</h2><div id="adminOrders"></div></div><div class="box"><h2>Refund Queue</h2><div id="adminRefunds"></div></div></section>
+</main>
+<div class="modal" id="auth"><div><h2>Customer Login</h2><input id="email" placeholder="Email"><input id="password" type="password" placeholder="Password"><button class="btn" onclick="login()">Login</button><hr><h3>New customer</h3><input id="signupName" placeholder="Name"><input id="signupEmail" placeholder="Email"><input id="signupPhone" placeholder="Phone"><input id="signupPassword" type="password" placeholder="Password"><button class="btn" onclick="signup()">Create account</button><button class="btn light" onclick="closeAuth()">Close</button></div></div>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+const API=localStorage.getItem('se_api')||'http://localhost:4000';let token=localStorage.getItem('se_token')||'',cart=JSON.parse(localStorage.getItem('se_connected_cart')||'[]'),addresses=[],selected=null;
+const $=id=>document.getElementById(id);
+function H(){return {'Content-Type':'application/json',...(token?{Authorization:'Bearer '+token}:{})}}
+async function api(p,o={}){let r=await fetch(API+p,{...o,headers:{...H(),...(o.headers||{})}});let d=await r.json().catch(()=>({}));if(!r.ok)throw Error(d.error||'Request failed');return d}
+function page(id){document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));$(id).classList.add('active');if(id==='analytics')loadAnalytics();if(id==='account')loadAccount();if(id==='notifications')loadNotifications();if(id==='returns')loadReturns();if(id==='inventoryPage')loadInventory();if(id==='ordersAdminPage')loadAdminOrders();if(id==='shippingAdminPage')loadShipments();if(id==='cart')renderCart();if(id==='checkout')initCheckout();if(id==='orders')loadOrders();if(id==='account')loadAccount();if(id==='admin')loadAdmin()}
+function openAuth(){$('auth').classList.add('show')}function closeAuth(){$('auth').classList.remove('show')}
+async function login(){try{let d=await api('/api/auth/login',{method:'POST',body:JSON.stringify({email:$('email').value,password:$('password').value})});token=d.token;localStorage.setItem('se_token',token);closeAuth();refresh()}catch(e){alert(e.message)}}
+async function signup(){try{let d=await api('/api/auth/signup',{method:'POST',body:JSON.stringify({name:$('signupName').value,email:$('signupEmail').value,phone:$('signupPhone').value,password:$('signupPassword').value})});token=d.token;localStorage.setItem('se_token',token);closeAuth();refresh()}catch(e){alert(e.message)}}
+async function refresh(){try{let u=await api('/api/me');$('adminNav').style.display=u.role==='admin'?'inline-block':'none'}catch{}loadProducts();updateCount()}
+async function loadProducts(){try{let ps=await api('/api/products');$('products').innerHTML=ps.map(p=>`<article class="card"><div class="pic">${p.category==='Petticoat'?'👗':'🥻'}</div><h2>${p.name}</h2><p class="muted">${p.description||''}</p>${p.variants.map(v=>`<div class="item"><span><b>${v.color||'Standard'} / ${v.size||'Standard'}</b><br><small>₹${v.price} · ${v.stock} available</small></span><button class="btn" ${v.stock<1?'disabled':''} onclick="add(${v.id},'${p.name.replace(/'/g,"\\'")}',${v.price},'${v.color||''}','${v.size||''}')">${v.stock<1?'Out':'Add'}</button></div>`).join('')}</article>`).join('')}catch(e){$('products').innerHTML='<div class="box">Backend unavailable. Start the API on port 4000.</div>'}}
+function add(id,name,price,color,size){let x=cart.find(i=>i.variant_id===id);if(x)x.quantity++;else cart.push({variant_id:id,name,price,color,size,quantity:1});localStorage.setItem('se_connected_cart',JSON.stringify(cart));updateCount();alert('Added to cart')}
+function updateCount(){$('cartCount').innerText=cart.reduce((a,x)=>a+x.quantity,0)}
+function renderCart(){$('cartItems').innerHTML=cart.length?cart.map((x,i)=>`<div class="item"><span><b>${x.name}</b><br><small>${x.color||''} ${x.size||''} × ${x.quantity}</small></span><span>₹${x.price*x.quantity} <button class="btn light" onclick="cart.splice(${i},1);saveCart();renderCart()">Remove</button></span></div>`).join(''):'<p class="muted">Cart is empty.</p>';updateCount()}
+function saveCart(){localStorage.setItem('se_connected_cart',JSON.stringify(cart));updateCount()}
+async function initCheckout(){if(!token){openAuth();return}try{addresses=await api('/api/addresses');if(!selected&&addresses.length)selected=addresses[0];renderAddresses();renderSummary()}catch(e){alert(e.message)}}
+function renderAddresses(){$('addresses').innerHTML=addresses.map(a=>`<div class="item"><span><b>${a.name}</b>${a.is_default?' · Default':''}<br>${a.address}, ${a.city} - ${a.pincode}<br>${a.phone}</span><button class="btn light" onclick="selectAddr(${a.id})">Select</button></div>`).join('')||'<p class="muted">No address saved.</p>'}
+function selectAddr(id){selected=addresses.find(a=>a.id===id);renderAddresses()}
+async function addAddress(){try{await api('/api/addresses',{method:'POST',body:JSON.stringify({name:$('aname').value,phone:$('aphone').value,address:$('aaddress').value,city:$('acity').value,pincode:$('apin').value,is_default:addresses.length===0})});addresses=await api('/api/addresses');selected=addresses[0];renderAddresses()}catch(e){alert(e.message)}}
+function renderSummary(){$('summary').innerHTML=cart.map(x=>`<div class="item"><span>${x.name}<br><small>${x.color||''} ${x.size||''} × ${x.quantity}</small></span><b>₹${x.price*x.quantity}</b></div>`).join('')+`<div class="item"><b>Total</b><b>₹${cart.reduce((a,x)=>a+x.price*x.quantity,0)}</b></div>`}
+async function pay(){if(!token)return openAuth();if(!selected)return alert('Select an address');if(!cart.length)return alert('Cart is empty');try{let d=await api('/api/orders/draft',{method:'POST',body:JSON.stringify({address_id:selected.id,items:cart.map(x=>({variant_id:x.variant_id,quantity:x.quantity}))})});let rz=new Razorpay({key:d.key_id,amount:d.amount*100,currency:d.currency,name:'Satish Enterprises',description:'Order '+d.order_number,order_id:d.razorpay_order_id,prefill:{name:selected.name,contact:selected.phone},handler:async r=>{try{await api('/api/payments/razorpay/verify',{method:'POST',body:JSON.stringify({...r,internal_order_id:d.internal_order_id})});alert('Payment verified. Order will be confirmed from the captured-payment webhook.');cart=[];saveCart();page('orders')}catch(e){alert(e.message)}}});rz.open()}catch(e){alert(e.message)}}
+
+
+
+
+
+async function loadAnalytics(){
+ if(!token){openAuth();return}
+ try{
+  const days=$('analyticsDays').value;
+  const [s,d,p,c]=await Promise.all([api('/api/admin/analytics/summary?days='+days),api('/api/admin/analytics/daily?days='+days),api('/api/admin/analytics/products?days='+days),api('/api/admin/analytics/customers?days='+days)]);
+  $('analyticsKpis').innerHTML=`<div class="kpi"><span>Revenue</span><b>₹${s.revenue}</b></div><div class="kpi"><span>Orders</span><b>${s.orders}</b></div><div class="kpi"><span>Delivered</span><b>${s.delivered}</b></div><div class="kpi"><span>Refunds</span><b>₹${s.refunds}</b></div><div class="kpi"><span>New Customers</span><b>${s.new_customers}</b></div>`;
+  $('dailyAnalytics').innerHTML=d.map(x=>`<div class="item"><span>${x.day}<br><small>${x.orders} orders · ${x.paid_orders} paid</small></span><b>₹${x.revenue}</b></div>`).join('')||'<p class="muted">No data.</p>';
+  $('productAnalytics').innerHTML=p.map(x=>`<div class="item"><span><b>${x.name}</b><br><small>${x.category} · ${x.units_sold} units · stock ${x.current_stock}</small></span><b>₹${x.sales}</b></div>`).join('')||'<p class="muted">No sales data.</p>';
+  $('customerAnalytics').innerHTML=c.map(x=>`<div class="item"><span><b>${x.name}</b><br><small>${x.email} · ${x.orders} orders</small></span><b>₹${x.spend}</b></div>`).join('')||'<p class="muted">No customers.</p>';
+ }catch(e){alert(e.message)}
+}
+
+async function loadAccount(){
+ if(!token){openAuth();return}
+ try{
+  const [x,orders]=await Promise.all([api('/api/account/summary'),api('/api/account/orders')]);
+  $('accountName').value=x.user.name||'';$('accountPhone').value=x.user.phone||'';
+  $('accountKpis').innerHTML=`<div class="kpi"><span>Orders</span><b>${x.stats.orders}</b></div><div class="kpi"><span>Active</span><b>${x.stats.active}</b></div><div class="kpi"><span>Delivered</span><b>${x.stats.delivered}</b></div><div class="kpi"><span>Returns</span><b>${x.stats.returns}</b></div>`;
+  $('accountOrders').innerHTML=orders.length?orders.map(o=>`<div class="item"><span><b>${o.order_number}</b><br><small>${new Date(o.created_at).toLocaleDateString('en-IN')} · ₹${o.total}</small></span><span>${o.order_status}<br>${o.awb_number?`AWB ${o.awb_number}`:''}</span></div>`).join(''):'<p class="muted">No orders yet.</p>';
+ }catch(e){alert(e.message)}
+}
+async function saveProfile(){
+ try{await api('/api/account/profile',{method:'PATCH',body:JSON.stringify({name:$('accountName').value,phone:$('accountPhone').value})});alert('Profile saved')}catch(e){alert(e.message)}
+}
+async function changePassword(){
+ try{await api('/api/account/change-password',{method:'POST',body:JSON.stringify({current_password:$('currentPassword').value,new_password:$('newPassword').value})});$('currentPassword').value='';$('newPassword').value='';alert('Password changed')}catch(e){alert(e.message)}
+}
+
+async function trackShipment(){
+ const awb=$('trackAwb').value.trim();if(!awb)return;
+ try{const x=await api('/api/track/'+encodeURIComponent(awb));$('trackResult').innerHTML=`<div class="box"><h3>${x.courier||'Courier'}</h3><p><b>AWB:</b> ${x.awb_number}</p><p><b>Status:</b> ${x.status}</p><p><b>Estimated delivery:</b> ${x.estimated_delivery||'—'}</p>${x.tracking_url?`<a href="${x.tracking_url}" target="_blank">Open courier tracking</a>`:''}</div>`}catch(e){$('trackResult').innerText=e.message}
+}
+async function loadShipments(){
+ try{const xs=await api('/api/admin/shipments');$('shipmentTable').innerHTML=xs.map(s=>`<div class="item"><span><b>${s.order_number}</b> · ${s.customer_name}<br><small>${s.courier} · AWB ${s.awb_number}</small></span><span><select onchange="shipmentStatus(${s.id},this.value)">${['ready','shipped','in_transit','out_for_delivery','delivered','exception','returned'].map(x=>`<option ${x===s.status?'selected':''}>${x}</option>`).join('')}</select></span></div>`).join('')||'<p class="muted">No shipments.</p>'}catch(e){$('shipmentTable').innerText=e.message}
+}
+async function shipmentStatus(id,status){try{await api('/api/admin/shipments/'+id+'/status',{method:'PATCH',body:JSON.stringify({status})});loadShipments()}catch(e){alert(e.message)}}
+
+async function loadNotifications(){
+ if(!token){openAuth();return}
+ try{
+  const [ns,c,p]=await Promise.all([api('/api/notifications'),api('/api/notifications/unread-count'),api('/api/notification-preferences')]);
+  $('unread').innerText=c.count;
+  $('notificationList').innerHTML=ns.length?ns.map(n=>`<div class="item" style="${n.read_at?'opacity:.55':''}"><span><b>${n.title}</b><br>${n.message}<br><small>${new Date(n.created_at).toLocaleString('en-IN')}</small></span><span>${n.read_at?'Read':`<button class="btn light" onclick="markRead(${n.id})">Read</button>`}</span></div>`).join(''):'<p class="muted">No notifications.</p>';
+  $('prefs').innerHTML=`<label><input id="emailPref" type="checkbox" ${p.email_enabled?'checked':''}> Email notifications</label><br>
+  <label><input id="waPref" type="checkbox" ${p.whatsapp_enabled?'checked':''}> WhatsApp notifications</label><br>
+  <label><input id="orderPref" type="checkbox" ${p.order_updates?'checked':''}> Order updates</label><br>
+  <label><input id="payPref" type="checkbox" ${p.payment_updates?'checked':''}> Payment updates</label><br>
+  <label><input id="shipPref" type="checkbox" ${p.shipping_updates?'checked':''}> Shipping updates</label><br>
+  <label><input id="returnPref" type="checkbox" ${p.return_updates?'checked':''}> Return updates</label><br>
+  <label><input id="refundPref" type="checkbox" ${p.refund_updates?'checked':''}> Refund updates</label><br>
+  <button class="btn" onclick="savePrefs()">Save preferences</button>`;
+ }catch(e){$('notificationList').innerText=e.message}
+}
+async function markRead(id){try{await api('/api/notifications/'+id+'/read',{method:'PATCH'});loadNotifications()}catch(e){alert(e.message)}}
+async function readAll(){try{await api('/api/notifications/read-all',{method:'POST'});loadNotifications()}catch(e){alert(e.message)}}
+async function savePrefs(){try{await api('/api/notification-preferences',{method:'PATCH',body:JSON.stringify({
+ email_enabled:$('emailPref').checked,whatsapp_enabled:$('waPref').checked,order_updates:$('orderPref').checked,
+ payment_updates:$('payPref').checked,shipping_updates:$('shipPref').checked,return_updates:$('returnPref').checked,refund_updates:$('refundPref').checked})});alert('Preferences saved')}catch(e){alert(e.message)}}
+
+async function loadReturns(){
+ if(!token){openAuth();return}
+ try{const rs=await api('/api/returns');$('returnList').innerHTML=rs.length?rs.map(r=>`<div class="item"><span><b>#${r.id} · ${r.order_number}</b><br>${r.product} ${r.color||''} ${r.size||''} × ${r.quantity}<br><small>${r.reason}</small></span><span>${r.status}<br>${r.refund_status}</span></div>`).join(''):'<p class="muted">No returns.</p>'}catch(e){$('returnList').innerText=e.message}
+}
+async function requestReturn(orderId,itemId,maxQty){
+ const q=Number(prompt('Quantity to return (max '+maxQty+')','1'));if(!q)return;
+ const reason=prompt('Reason for return');if(!reason)return;
+ try{await api('/api/orders/'+orderId+'/returns',{method:'POST',body:JSON.stringify({order_item_id:itemId,quantity:q,reason})});alert('Return request submitted');loadReturns()}catch(e){alert(e.message)}
+}
+
+async function loadOrders(){if(!token){$('ordersList').innerHTML='<p>Please login.</p>';return}try{let os=await api('/api/orders');$('ordersList').innerHTML=os.length?os.map(o=>`<div class="item"><span><b>${o.order_number}</b><br><small>${new Date(o.created_at).toLocaleString('en-IN')} · Payment: ${o.payment_status}</small></span><span class="badge ${o.payment_status==='paid'?'green':'yellow'}">${o.order_status}</span></div>`).join(''):'<p class="muted">No orders.</p>'}catch(e){$('ordersList').innerText=e.message}}
+
+async function loadAnalytics(){
+ if(!token){openAuth();return}
+ try{
+  const days=$('analyticsDays').value;
+  const [s,d,p,c]=await Promise.all([api('/api/admin/analytics/summary?days='+days),api('/api/admin/analytics/daily?days='+days),api('/api/admin/analytics/products?days='+days),api('/api/admin/analytics/customers?days='+days)]);
+  $('analyticsKpis').innerHTML=`<div class="kpi"><span>Revenue</span><b>₹${s.revenue}</b></div><div class="kpi"><span>Orders</span><b>${s.orders}</b></div><div class="kpi"><span>Delivered</span><b>${s.delivered}</b></div><div class="kpi"><span>Refunds</span><b>₹${s.refunds}</b></div><div class="kpi"><span>New Customers</span><b>${s.new_customers}</b></div>`;
+  $('dailyAnalytics').innerHTML=d.map(x=>`<div class="item"><span>${x.day}<br><small>${x.orders} orders · ${x.paid_orders} paid</small></span><b>₹${x.revenue}</b></div>`).join('')||'<p class="muted">No data.</p>';
+  $('productAnalytics').innerHTML=p.map(x=>`<div class="item"><span><b>${x.name}</b><br><small>${x.category} · ${x.units_sold} units · stock ${x.current_stock}</small></span><b>₹${x.sales}</b></div>`).join('')||'<p class="muted">No sales data.</p>';
+  $('customerAnalytics').innerHTML=c.map(x=>`<div class="item"><span><b>${x.name}</b><br><small>${x.email} · ${x.orders} orders</small></span><b>₹${x.spend}</b></div>`).join('')||'<p class="muted">No customers.</p>';
+ }catch(e){alert(e.message)}
+}
+
+async function loadAccount(){if(!token){$('accountInfo').innerHTML='<p>Please login.</p>';return}try{let u=await api('/api/me');$('accountInfo').innerHTML=`<p><b>${u.name}</b></p><p>${u.email}</p><p>${u.phone||'No phone'}</p><p>Role: ${u.role}</p><button class="btn" onclick="logout()">Logout</button>`}catch(e){$('accountInfo').innerText=e.message}}
+function logout(){token='';localStorage.removeItem('se_token');refresh()}
+async function loadAdmin(){
+ try{
+  let d=await api('/api/admin/dashboard');
+  const menu=$('adminMenu'),k=$('kpis');
+  const labels={dashboard:'Dashboard',orders:'Orders',inventory:'Inventory',products:'Products',customers:'Customers',finance:'Payments',returns:'Returns',refunds:'Refunds',notifications:'Notifications',settings:'Settings',audit:'Audit Log'};
+  menu.innerHTML=d.allowed.map(x=>`<button onclick="adminWorkspace('${x}')">${labels[x]||x}</button>`).join('');
+  k.innerHTML=Object.entries(d.stats).map(([x,v])=>`<div class="kpi"><span class="muted">${x}</span><b>${v}</b></div>`).join('');
+  adminWorkspace('dashboard');
+ }catch(e){$('adminCards').innerHTML='<div class="box">'+e.message+'</div>'}
+}
+async function adminWorkspace(type){
+ const title={dashboard:'Dashboard',orders:'Order Management',inventory:'Inventory Management',products:'Product Management',customers:'Customer Management',finance:'Payment Management',returns:'Return Management',refunds:'Refund Management',notifications:'Notifications',settings:'Settings',audit:'Audit Log'}[type]||type;
+ $('workspaceTitle').innerText=title;
+ try{
+  if(type==='dashboard'){$('workspaceBody').innerHTML='<p class="muted">Use the role-specific tabs above. Every tab is enforced by the API as well as the UI.</p>';return}
+  let data;
+  if(type==='orders'||type==='returns') data=await api('/api/admin/order-workspace');
+  else if(type==='inventory'||type==='products') data=await api('/api/admin/products');
+  else if(type==='customers') data=await api('/api/admin/customers');
+  else if(type==='finance'||type==='refunds') data=await api('/api/admin/finance-workspace');
+  else if(type==='audit') data=await api('/api/admin/audit-logs');
+  else if(type==='notifications'){data=await api('/api/notifications')}
+  else if(type==='settings'){data=await api('/api/admin/security')}
+  else data=[];
+  $('workspaceBody').innerHTML=Array.isArray(data)
+    ? (data.length?data.slice(0,50).map(x=>`<div class="item"><span><b>${x.order_number||x.name||x.title||x.action||x.type||x.product||'Record'}</b><br><small>${x.email||x.customer_name||x.message||x.role||x.status||''}</small></span><span>${x.total?'₹'+x.total:x.amount?'₹'+x.amount:x.stock??''}</span></div>`).join(''):'<p class="muted">No records.</p>')
+    : `<pre>${JSON.stringify(data,null,2)}</pre>`;
+ }catch(e){$('workspaceBody').innerHTML='<p class="red">'+e.message+'</p>'}
+}
+
+
+
+async function loadAdminOrders(){
+ try{const q=new URLSearchParams({search:$('orderSearch')?.value||'',status:$('orderStatus')?.value||''});const os=await api('/api/admin/orders?'+q);
+ $('adminOrderTable').innerHTML=os.map(o=>`<div class="item"><span><b>${o.order_number}</b><br>${o.customer_name} · ${o.email}<br><small>₹${o.total} · ${o.payment_status}</small></span><span><select onchange="changeOrderStatus(${o.id},this.value)">${['payment_pending','confirmed','processing','shipped','delivered','cancelled','return_requested','returned','refunded'].map(x=>`<option ${x===o.order_status?'selected':''}>${x}</option>`).join('')}</select><button class="btn light" onclick="viewOrder(${o.id})">View</button></span></div>`).join('')||'<p class="muted">No orders found.</p>'
+ }catch(e){$('adminOrderTable').innerText=e.message}
+}
+async function changeOrderStatus(id,status){
+ const note=prompt('Optional internal note','')||'';try{await api('/api/admin/orders/'+id+'/status',{method:'PATCH',body:JSON.stringify({status,note})});loadAdminOrders()}catch(e){alert(e.message)}
+}
+async function viewOrder(id){
+ try{const o=await api('/api/orders/'+id);$('orderDetail').style.display='block';$('orderDetail').innerHTML=`<h2>${o.order_number}</h2><p><b>${o.customer_name}</b> · ${o.customer_email}</p><p>${o.address}, ${o.city} - ${o.pincode}</p><h3>Items</h3>${o.items.map(i=>`<div class="item"><span>${i.product}<br><small>${i.color||''} ${i.size||''} × ${i.quantity}</small></span><span><b>₹${i.unit_price*i.quantity}</b><br>${o.order_status==='delivered'?`<button class="btn light" onclick="requestReturn(${o.id},${i.id},${i.quantity})">Request Return</button>`:''}</span></div>`).join('')}<h3>Timeline</h3>${o.history.map(h=>`<div class="item"><span>${h.old_status||'new'} → <b>${h.new_status}</b><br><small>${h.note||''}</small></span><small>${new Date(h.created_at).toLocaleString('en-IN')}</small></div>`).join('')||'<p>No status history.</p>'}`
+ }catch(e){alert(e.message)}
+}
+
+async function loadInventory(){
+ if(!token){openAuth();return}
+ try{
+  const rows=await api('/api/admin/inventory');
+  $('inventoryTable').innerHTML=rows.map(v=>`<div class="item"><span><b>${v.product}</b> — ${v.sku}<br><small>${v.color||''} ${v.size||''} · ₹${v.price}</small></span><span><b>${v.stock}</b> in stock <button class="btn light" onclick="adjustStock(${v.id},1)">+1</button> <button class="btn light" onclick="adjustStock(${v.id},-1)">−1</button></span></div>`).join('')||'<p class="muted">No variants.</p>';
+ }catch(e){$('inventoryTable').innerHTML='<p>'+e.message+'</p>'}
+}
+async function adjustStock(id,delta){
+ const reason=prompt('Reason for stock adjustment',delta>0?'Restock':'Correction')||'Manual adjustment';
+ try{await api('/api/admin/variants/'+id+'/adjust-stock',{method:'POST',body:JSON.stringify({delta,reason})});loadInventory()}catch(e){alert(e.message)}
+}
+async function addProduct(){
+ const name=prompt('Product name');if(!name)return;const sku=prompt('Product SKU');if(!sku)return;const category=prompt('Category','Petticoat')||'General';const description=prompt('Description','')||'';
+ try{const p=await api('/api/admin/products',{method:'POST',body:JSON.stringify({name,sku,category,description})});
+  const vsku=prompt('Variant SKU');if(vsku){const color=prompt('Colour','Black')||'';const size=prompt('Size','XL')||'';const price=Number(prompt('Price','200')||0);const stock=Number(prompt('Opening stock','0')||0);await api('/api/admin/products/'+p.id+'/variants',{method:'POST',body:JSON.stringify({sku:vsku,color,size,price,stock})})}
+  loadInventory();loadProducts();
+ }catch(e){alert(e.message)}
+}
+
+updateCount();refresh();
+
+function startRealtime(){
+  if(!token||!window.EventSource)return;
+  const url=API+'/api/events';
+  // EventSource cannot send Authorization headers; use the existing short-lived
+  // token through a one-time query parameter only for this SSE connection.
+  const es=new EventSource(url+'?access_token='+encodeURIComponent(token));
+  es.addEventListener('shipment.status_changed',e=>{if(document.getElementById('tracking').classList.contains('active'))trackShipment();if(document.getElementById('shippingAdminPage').classList.contains('active'))loadShipments()});es.addEventListener('notification.created',()=>{if(document.getElementById('notifications').classList.contains('active'))loadNotifications();else if(token){api('/api/notifications/unread-count').then(x=>{$('unread').innerText=x.count}).catch(()=>{})}});es.addEventListener('connected',()=>{});
+  es.addEventListener('admin.order_changed',e=>{if(document.getElementById('admin').classList.contains('active'))loadAdmin()});es.addEventListener('admin.payment_changed',e=>{if(document.getElementById('admin').classList.contains('active'))loadAdmin()});es.addEventListener('order.confirmed',e=>{try{const d=JSON.parse(e.data);alert('Order '+d.order_number+' is confirmed.');loadOrders();}catch{}});
+  es.addEventListener('account.updated',()=>loadAccount());
+  es.addEventListener('address.updated',()=>initCheckout());
+  es.onerror=()=>{es.close();setTimeout(startRealtime,10000)};
+}
+
+setTimeout(startRealtime,500);
+setInterval(()=>{if(document.visibilityState==="visible"){updateCount();if(document.getElementById("orders").classList.contains("active"))loadOrders();}},15000);
+</script></body></html>
